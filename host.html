@@ -176,6 +176,37 @@
       border-radius: .3em;
       padding: 0 0.23em;
     }
+    .expire-area{
+      display:flex;
+      align-items: center;
+      gap:0.5rem;
+      justify-content:center;
+      margin-top: 0.7rem;
+      font-size:0.95rem;
+      background: #191919;
+      border-radius: 0.5em;
+      padding: .4em 1em;
+      color:var(--dim);
+      transition:background .16s;
+    }
+    .expire-area label {
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .expire-select {
+      background: #191919;
+      color: #fff;
+      border:1px solid #333;
+      border-radius:0.4em;
+      padding:0.2em 0.5em;
+      margin-left:0.5em;
+      font-size:0.97em;
+      outline:none;
+      transition: border .16s;
+    }
+    .expire-select:focus {
+      border-color: #fff8;
+    }
     code {
       background: #141414;
       color: #fff;
@@ -195,6 +226,25 @@
     details[open] {
       animation: fadeIn 0.7s;
     }
+    .uploading-indicator {
+      margin: 0.9em auto 0.1em auto;
+      color: #fff;
+      font-size: 1.09rem;
+      letter-spacing: .08em;
+      font-weight: 700;
+      text-align: center;
+      padding: .36em .9em;
+      border-radius: 0.6em;
+      background: linear-gradient(90deg,#222,#141414,#232323);
+      box-shadow: 0 1px 14px -5px #fff2;
+      animation: pulse-out 1s infinite alternate cubic-bezier(.53,1.15,.44,.97);
+      width: fit-content;
+      opacity: 0.98;
+    }
+    @keyframes pulse-out {
+      0% {box-shadow:0 0 0px 0 #fff2; opacity:0.85;}
+      100% {box-shadow:0 0 10px 5px #fff5; opacity:1;}
+    }
   </style>
 </head>
 <body>
@@ -207,8 +257,19 @@
         <input id="file-input" type="file" accept="audio/*,video/*" multiple>
       </label>
       <button class="upload-btn" id="upload-btn">Upload</button>
+      <div class="expire-area">
+        <label for="expire-select">Link Expiry:</label>
+        <select id="expire-select" class="expire-select">
+          <option value="never">Never</option>
+          <option value="1h">1 Hour</option>
+          <option value="1d">1 Day</option>
+          <option value="7d">7 Days</option>
+        </select>
+      </div>
     </div>
+    <div id="uploading-indicator" class="uploading-indicator" style="display:none">Uploading...</div>
     <div id="preview" class="media-preview" style="display:none"></div>
+    <div id="gen-link-area"></div>
     <div id="link-output" class="link-output" style="display:none"></div>
     <div class="features">
       <strong>Features:</strong><br/>
@@ -217,22 +278,28 @@
       • No clutter – only minimal B/W UI<br>
       • Animated, modern, and responsive<br>
       <br>
-      <b>NOTE:</b> You <u>must</u> manually upload files for real hosting on <code>github.io</code>. This site generates video/audio share links for use elsewhere.
+      <b>NOTE:</b> You <u>must</u> manually upload files for real hosting on <code>github.io</code>. This site generates video/audio share links for use elsewhere.<br>
+      <b>TIP:</b> After uploading, copy the link beneath the video/audio. You can optionally choose an expiry hint for your link (for pasting elsewhere).
     </div>
   </div>
   <script>
-    // B/W Styling helpers
+    // References
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('file-input');
     const preview = document.getElementById('preview');
     const linkOutput = document.getElementById('link-output');
     const dropzoneText = document.getElementById('dropzone-text');
     const uploadBtn = document.getElementById('upload-btn');
+    const expireSelect = document.getElementById('expire-select');
+    const uploadingIndicator = document.getElementById('uploading-indicator');
+    const genLinkArea = document.getElementById('gen-link-area');
+
     let selectedFiles = [];
 
     dropzone.addEventListener('click', () => fileInput.click());
     dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault(); dropzone.classList.add('dragover');
+      e.preventDefault();
+      dropzone.classList.add('dragover');
       dropzoneText.textContent = "Drop to upload instantly";
     });
     dropzone.addEventListener('dragleave', (e) => {
@@ -251,12 +318,14 @@
     function handleFiles(fileList) {
       selectedFiles = Array.from(fileList);
       showMediaPreview(selectedFiles[0]);
+      genLinkArea.innerHTML = '';
+      linkOutput.innerHTML = '';
+      linkOutput.style.display = 'none';
     }
 
     function showMediaPreview(file) {
       preview.innerHTML = "";
       if (!file) { preview.style.display = 'none'; return; }
-
       let url = URL.createObjectURL(file);
       let el;
       if (file.type.startsWith("video")) {
@@ -275,68 +344,127 @@
       preview.style.display = '';
     }
 
+    function expireToHuman(v) {
+      switch(v) {
+        case 'never': return 'Never expires';
+        case '1h': return 'Expires in 1 hour';
+        case '1d': return 'Expires in 1 day';
+        case '7d': return 'Expires in 7 days';
+        default: return '';
+      }
+    }
+
     /**
-     * This simulates an upload by generating a link suitable for github.io:
-     * - For videos: Generates an .mp4 link you can upload to GitHub and use directly.
-     * - For audio: Generates a .mp3 link for the same.
-     * - For all: Shows an <video>/<audio> snippet and the public URL you would use after uploading.
+     * Site does not "upload" files – it simulates and gives you the link you would use,
+     * so let's show "Uploading..." and then show the link after a moment (to simulate action)
      */
-    uploadBtn.addEventListener('click', async function(){
-      if (!selectedFiles.length) {
+    uploadBtn.addEventListener('click', function() {
+      if (!selectedFiles.length || !selectedFiles[0]) {
         linkOutput.innerHTML = "Choose a file!";
         linkOutput.style.display = '';
+        genLinkArea.innerHTML='';
         return;
       }
       let file = selectedFiles[0];
-      // Set up variables for output
-      let ext = "";
-      let mime = file.type.toLowerCase();
-      if (mime.startsWith("video/")) ext = ".mp4";
-      else if (mime.startsWith("audio/")) ext = ".mp3";
-      else ext = "";
-      linkOutput.style.display = '';
-      // Use github.io URL as target
-      let githubUsername = "YOUR_GITHUB_USERNAME"; // <-- CHANGE THIS TO YOUR USERNAME!
-      let githubRepo = "YOUR_REPO"; // <-- CHANGE THIS TO YOUR REPO!
-      let fileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, "_");
-      // Final URL you would have after uploading the file manually to github.io repo.
-      let fileURL = `https://${githubUsername}.github.io/${githubRepo}/files/${fileName}`;
-      let tag = "";
 
-      if (mime.startsWith("video/")) {
-        tag = `<video src="${fileURL}" controls style="max-width:100%"></video>`;
-      } else if (mime.startsWith("audio/")) {
-        tag = `<audio src="${fileURL}" controls style="max-width:100%"></audio>`;
-      } else {
-        tag = "Link valid for video or audio only.";
-      }
-      // Update preview to use actual github.io style URL (simulate hosting)
-      preview.innerHTML = tag;
-      preview.style.display = '';
+      // First show uploading indicator
+      uploadingIndicator.style.display = '';
+      genLinkArea.innerHTML = '';
+      linkOutput.innerHTML = '';
+      linkOutput.style.display = 'none';
 
-      // Embeddable link and Discord-ready snippet
-      let htmlLink = `
-        <b>Share/Embed this link after upload:</b><br>
-        <a href="${fileURL}" target="_blank" rel="noopener">${fileURL}</a>
-        <details><summary>Embed code</summary>
-          <code>${tag.replace(/</g,'&lt;')}</code>
-        </details>
-        <br>
-        <small>Upload <b>${fileName}</b> to your <code>/files/</code> folder in your GitHub Pages (<code>github.io</code>) repo to activate this link.</small>
-      `;
-      linkOutput.innerHTML = htmlLink;
+      // Simulate delay
+      setTimeout(function(){
+        uploadingIndicator.style.display = 'none';
 
-      // Update og:video for best preview on Discord
-      updateOG(fileURL, mime.startsWith('video/') ? 'video/mp4' : (mime.startsWith('audio/') ? 'audio/mpeg' : ''));
+        let ext = "";
+        let mime = file.type.toLowerCase();
+        if (mime.startsWith("video/")) ext = ".mp4";
+        else if (mime.startsWith("audio/")) ext = ".mp3";
+        else ext = "";
+
+        // Setup user info
+        let githubUsername = "YOUR_GITHUB_USERNAME"; // <-- CHANGE THIS TO YOUR USERNAME!
+        let githubRepo = "YOUR_REPO"; // <-- CHANGE THIS TO YOUR REPO!
+        let fileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, "_");
+        let fileURL = `https://${githubUsername}.github.io/${githubRepo}/files/${fileName}`;
+
+        let tag, discordHint;
+        if (mime.startsWith("video/")) {
+          tag = `<video src="${fileURL}" controls style="max-width:100%"></video>`;
+          discordHint = `${fileURL}`;
+        } else if (mime.startsWith("audio/")) {
+          tag = `<audio src="${fileURL}" controls style="max-width:100%"></audio>`;
+          discordHint = `${fileURL}`;
+        } else {
+          tag = "Link valid for video or audio only.";
+          discordHint = '';
+        }
+
+        // Update static preview area to simulate real file link (after upload)
+        preview.innerHTML = tag;
+        preview.style.display = '';
+
+        // Expiry
+        let expireValue = expireSelect.value;
+        let expireHuman = expireToHuman(expireValue);
+
+        // Show Discord/link/embed below media
+        let genHTML = '';
+        if (discordHint) {
+          genHTML = `
+            <div style="margin-top:1.05em;text-align:center;">
+              <b style="color:#fff">Link:</b>
+              <div style="margin:0.4em 0 0.1em 0;word-break:break-all;">
+                <a href="${fileURL}" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline">${fileURL}</a>
+              </div>
+              <div style="font-size:.98em;margin:0.41em auto 0.6em auto;color:#aaa;">
+                <span>${expireHuman}</span>
+              </div>
+              <details style="margin-top:0.6em;">
+                <summary>Embed code (HTML)</summary>
+                <code>${tag.replace(/</g,'&lt;')}</code>
+              </details>
+              <details>
+                <summary>Discord Share</summary>
+                <div style="background:#212121;border-radius:0.34em;padding:0.38em 0.7em;user-select:all;">
+                  ${fileURL}
+                </div>
+                <div style="font-size:.95em;margin:.4em 0 .1em 0;color:#888;">
+                  <i>Paste this link in Discord to embed the file.</i>
+                </div>
+              </details>
+            </div>
+          `;
+        }
+        genLinkArea.innerHTML = genHTML;
+
+        // Also for backward compatibility, fill the link-output area (hidden) for copy/paste.
+        linkOutput.style.display = '';
+        linkOutput.innerHTML = `
+          <b>Share/Embed this link after upload:</b><br>
+          <a href="${fileURL}" target="_blank" rel="noopener">${fileURL}</a>
+          <details><summary>Embed code</summary>
+            <code>${tag.replace(/</g,'&lt;')}</code>
+          </details>
+          <br>
+          <small>Upload <b>${fileName}</b> to your <code>/files/</code> folder in your GitHub Pages (<code>github.io</code>) repo to activate this link.</small>
+          <br><br>
+          <b>Expiry:</b> ${expireHuman}
+        `;
+
+        // Update OG for discord (simulate)
+        updateOG(fileURL, mime.startsWith('video/') ? 'video/mp4' : (mime.startsWith('audio/') ? 'audio/mpeg' : ''));
+      }, 1200); // Simulate 1.2s upload time for animation
     });
 
     // Update meta OG tags live
     function updateOG(src, type){
       let ogTags = {
-        "og:video": type.startsWith('video') ? src : "",
-        "og:audio": type.startsWith('audio') ? src : "",
+        "og:video": type && type.startsWith('video') ? src : "",
+        "og:audio": type && type.startsWith('audio') ? src : "",
         "twitter:player": src,
-        "og:type": type.startsWith('video') ? "video.other" : (type.startsWith('audio') ? "music.song" : "")
+        "og:type": type && type.startsWith('video') ? "video.other" : (type && type.startsWith('audio') ? "music.song" : "")
       };
       for (const [k,v] of Object.entries(ogTags)){
         let el = document.querySelector(`meta[property='${k}'],meta[name='${k}']`);
@@ -347,4 +475,5 @@
   </script>
 </body>
 </html>
+
 
