@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Audio Morph FX",
+  "version": "1.0.0",
+  "description": "Modern tab audio effects: slowed/reverb, nightcore, bass boost, and volume boost.",
+  "permissions": ["storage", "tabs", "activeTab"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_title": "Audio Morph FX",
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/audio-engine.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "audio-morph-fx@example.com"
+    }
+  }
+}
