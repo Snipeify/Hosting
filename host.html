@@ -1,479 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>File Hosting Site</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <meta property="og:title" content="File Hosting Site - Friends only">
-  <meta property="og:description" content="Minimal, fast, black & white video/audio hosting. Friends only.">
-  <meta property="og:type" content="video.other">
-  <meta property="og:url" content="">
-  <meta property="og:image" content="">
-  <meta name="twitter:card" content="player">
-  <meta name="theme-color" content="#111">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendim | Create Key</title>
   <style>
     :root {
-      --bg: #111;
-      --card: #222;
-      --accent: #fff;
-      --dim: #bbb;
-      --radius: 1.1rem;
-      --focus: #fff;
-      --shadow: 0 0 0 2px #fff1;
-      --border: #333;
+      --bg-1: #0b1020;
+      --bg-2: #121a35;
+      --accent: #7df9ff;
+      --accent-2: #a78bfa;
+      --text: #eef2ff;
+      --muted: #9ca3af;
+      --glass: rgba(255, 255, 255, 0.08);
+      --border: rgba(255, 255, 255, 0.2);
     }
-    html, body {
-      margin: 0; padding: 0;
-      font-family: 'Inter', Arial, sans-serif;
-      background: var(--bg);
-      color: var(--accent);
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.6s cubic-bezier(.23,1.03,.65,.99);
+      display: grid;
+      place-items: center;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 20%, #1f2b57 0%, transparent 45%),
+                  radial-gradient(circle at 80% 30%, #2d1f57 0%, transparent 35%),
+                  linear-gradient(145deg, var(--bg-1), var(--bg-2));
+      overflow: hidden;
     }
-    h1 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      letter-spacing: .05em;
-      text-align: center;
-      color: var(--accent);
-      margin: 2rem 0 0.5rem 0;
-      animation: fadeIn 1.3s cubic-bezier(.62,1.14,.44,.98);
+
+    .orb {
+      position: fixed;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      filter: blur(48px);
+      z-index: -1;
+      opacity: 0.35;
+      animation: drift 8s ease-in-out infinite alternate;
     }
-    .subtitle {
-      text-align: center;
-      color: var(--dim);
-      font-size: 1.04rem;
-      font-weight: 500;
-      letter-spacing: 0.045em;
-      margin-bottom: 1.5rem;
-      animation: fadeIn 1.2s 0.19s both cubic-bezier(.62,1.14,.44,.98);
-    }
+    .orb.one { background: var(--accent); top: -80px; left: -70px; }
+    .orb.two { background: var(--accent-2); bottom: -90px; right: -70px; animation-delay: 1s; }
+
     .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: 0 6px 32px -18px #000;
-      padding: 2.1rem 2.4rem 1.7rem 2.4rem;
-      min-width: 327px;
-      margin: 1.1rem auto 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.3rem;
-      animation: upIn 1.8s cubic-bezier(.53,1.23,.45,.99);
-      border: 1.5px solid var(--border);
-    }
-    @keyframes fadeIn {
-      0% { opacity:0; transform: translateY(16px);}
-      100% {opacity:1; transform: translateY(0);}
-    }
-    @keyframes upIn {
-      0% { opacity: 0; transform: scale(0.92) translateY(51px);}
-      90% {transform: scale(1.04);}
-      100%{ opacity: 1; transform: scale(1) translateY(0);}
-    }
-    .upload-btn {
-      background: #fff;
-      color: #111;
-      border: none;
-      border-radius: 999px;
-      padding: 0.88rem 2.1rem;
-      font-size: 1.13rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: box-shadow .15s, transform .15s, background .25s, color .2s;
-      box-shadow: 0 1px 21px -8px #fff2;
-      outline: none;
-      margin-bottom: 0.7rem;
-      margin-top: 0.25rem;
-      animation: btnIn 0.93s cubic-bezier(.61,1.12,.44,.99) 0.79s both;
-      border: 1.8px solid #fff2;
-    }
-    @keyframes btnIn {
-      0% {opacity:0;transform:scale(0.62);}
-      100%{opacity:1;transform:scale(1);}
-    }
-    .upload-btn:hover,
-    .upload-btn:focus {
-      background: #181818;
-      color: #fff;
-      border-color: #fff;
-      box-shadow: 0 3px 28px -10px #fff4;
-    }
-    .input-area {
-      display: flex;
-      flex-direction: column;
-      gap: 0.7rem;
-      align-items: center;
-    }
-    input[type="file"] {
-      display: none;
-    }
-    .dropzone {
-      border: 2px dashed #fff6;
-      background: #161616;
-      transition: border-color .19s, background .15s, color .14s;
-      border-radius: var(--radius);
-      padding: 1.32rem 2.17rem;
+      width: min(92vw, 460px);
+      padding: 2.2rem 1.8rem;
+      border-radius: 24px;
+      background: var(--glass);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
       text-align: center;
-      color: var(--dim);
+      animation: floatIn .8s cubic-bezier(.2,.8,.2,1);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 2.9rem);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #fff, #c5d4ff 45%, #e9d5ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shimmer 4s linear infinite;
+      background-size: 200% auto;
+    }
+
+    .tagline {
+      margin: .55rem 0 1.4rem;
+      color: var(--muted);
+      font-size: .96rem;
+      letter-spacing: .04em;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: .88rem 1.5rem;
+      font-weight: 700;
+      font-size: 1rem;
       cursor: pointer;
-      font-size: 1.06rem;
-      outline: none;
-      box-shadow: 0 1px 9px -5px #fff1;
+      transition: transform .18s ease, box-shadow .2s ease, opacity .2s ease;
     }
-    .dropzone.dragover {
-      border-color: var(--accent);
-      background: #232323;
-      color: var(--accent);
+
+    .btn-primary {
+      color: #05131b;
+      background: linear-gradient(90deg, var(--accent), #b9f7ff);
+      box-shadow: 0 10px 26px rgba(125, 249, 255, 0.32);
     }
-    .link-output {
-      margin-top: 1rem;
-      word-break: break-all;
-      background: #191919ee;
-      border-radius: .88rem;
-      padding: 1.04rem;
-      color: #fff;
-      font-size: 1.07rem;
-      box-shadow: 0 2px 17px -7px #0007;
-      border: 1.2px solid #363636;
-      animation: fadeIn 1.12s cubic-bezier(.56,2.13,.39,.97);
-      transition: background .22s;
-      user-select: all;
-    }
-    .media-preview {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+    .btn-primary:hover { transform: translateY(-2px) scale(1.02); }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
       align-items: center;
       justify-content: center;
-      margin-top: 0.6rem;
-      animation: fadeIn 1.1s cubic-bezier(.56,2.13,.39,.97) .15s both;
+      background: rgba(0, 0, 0, 0.58);
+      animation: fade .3s ease;
     }
-    video, audio {
-      max-width: 300px;
-      border-radius: .64rem;
-      box-shadow: 0 4px 12px -8px #0007;
-      background: #000;
+
+    .modal.open { display: flex; }
+
+    .modal-box {
+      width: min(92vw, 430px);
+      background: #111a33;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.4rem;
+      box-shadow: 0 24px 50px rgba(0,0,0,.5);
+      transform: translateY(10px);
+      animation: pop .35s ease forwards;
     }
-    .features {
-      margin-top: 1.2rem;
-      color: var(--dim);
-      font-size: 0.98rem;
-      text-align:center;
-      line-height:1.6;
-      letter-spacing: 0.01em;
-      animation: fadeIn 1.23s cubic-bezier(.6,1.13,.66,.99) .41s both;
-      padding-bottom: 0.2rem;
-      max-width: 370px;
+
+    .modal h2 { margin: 0 0 .5rem; font-size: 1.2rem; }
+    .modal p { margin: 0 0 1rem; color: var(--muted); }
+
+    .hidden-key {
+      background: #0b1229;
+      border: 1px dashed #3f4f84;
+      color: transparent;
+      text-shadow: 0 0 7px rgba(255,255,255,.65);
+      user-select: none;
+      border-radius: 12px;
+      padding: .8rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      margin-bottom: 1rem;
+      letter-spacing: .03em;
     }
-    .features strong {
-      color: #fff;
-      background: #181818;
-      border-radius: .3em;
-      padding: 0 0.23em;
+
+    .actions {
+      display: flex;
+      gap: .7rem;
+      justify-content: end;
     }
-    .expire-area{
-      display:flex;
-      align-items: center;
-      gap:0.5rem;
-      justify-content:center;
-      margin-top: 0.7rem;
-      font-size:0.95rem;
-      background: #191919;
-      border-radius: 0.5em;
-      padding: .4em 1em;
-      color:var(--dim);
-      transition:background .16s;
+
+    .btn-copy {
+      color: #071426;
+      background: linear-gradient(90deg, #93c5fd, #67e8f9);
     }
-    .expire-area label {
-      color: var(--accent);
-      font-weight: 500;
+
+    .btn-close {
+      color: #dbeafe;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.2);
     }
-    .expire-select {
-      background: #191919;
-      color: #fff;
-      border:1px solid #333;
-      border-radius:0.4em;
-      padding:0.2em 0.5em;
-      margin-left:0.5em;
-      font-size:0.97em;
-      outline:none;
-      transition: border .16s;
+
+    .status {
+      margin-top: .7rem;
+      min-height: 1.2em;
+      color: #93c5fd;
+      font-size: .9rem;
     }
-    .expire-select:focus {
-      border-color: #fff8;
+
+    @keyframes floatIn {
+      from { opacity: 0; transform: translateY(16px) scale(.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
-    code {
-      background: #141414;
-      color: #fff;
-      font-family: "Fira Mono", monospace;
-      padding: 0.14em 0.34em;
-      border-radius: .3em;
-      font-size: 1em;
-      letter-spacing: 0.01em;
-    }
-    details summary {
-      cursor: pointer;
-      color: #fff;
-      font-weight: bold;
-      margin-top: .7em;
-      margin-bottom: .5em;
-    }
-    details[open] {
-      animation: fadeIn 0.7s;
-    }
-    .uploading-indicator {
-      margin: 0.9em auto 0.1em auto;
-      color: #fff;
-      font-size: 1.09rem;
-      letter-spacing: .08em;
-      font-weight: 700;
-      text-align: center;
-      padding: .36em .9em;
-      border-radius: 0.6em;
-      background: linear-gradient(90deg,#222,#141414,#232323);
-      box-shadow: 0 1px 14px -5px #fff2;
-      animation: pulse-out 1s infinite alternate cubic-bezier(.53,1.15,.44,.97);
-      width: fit-content;
-      opacity: 0.98;
-    }
-    @keyframes pulse-out {
-      0% {box-shadow:0 0 0px 0 #fff2; opacity:0.85;}
-      100% {box-shadow:0 0 10px 5px #fff5; opacity:1;}
-    }
+    @keyframes shimmer { to { background-position: 200% center; } }
+    @keyframes drift { to { transform: translate(18px, -14px) scale(1.08); } }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pop { to { transform: translateY(0); } }
   </style>
 </head>
 <body>
-  <h1>File Hosting Site</h1>
-  <div class="subtitle">Friends only – Black & White Ultra Minimal</div>
-  <div class="card">
-    <div class="input-area">
-      <label for="file-input" class="dropzone" id="dropzone">
-        <span id="dropzone-text">Drop files here or click to select</span>
-        <input id="file-input" type="file" accept="audio/*,video/*" multiple>
-      </label>
-      <button class="upload-btn" id="upload-btn">Upload</button>
-      <div class="expire-area">
-        <label for="expire-select">Link Expiry:</label>
-        <select id="expire-select" class="expire-select">
-          <option value="never">Never</option>
-          <option value="1h">1 Hour</option>
-          <option value="1d">1 Day</option>
-          <option value="7d">7 Days</option>
-        </select>
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+
+  <main class="card">
+    <h1>Vendim</h1>
+    <p class="tagline">Modern • Sleek • Animated</p>
+    <button id="openModal" class="btn btn-primary">Create Key</button>
+  </main>
+
+  <section id="modal" class="modal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="title">
+      <h2 id="title">Your key is generated</h2>
+      <p>The key text is intentionally hidden for privacy.</p>
+      <div class="hidden-key" id="hiddenKey">wittle bittle diddle snittle</div>
+      <div class="actions">
+        <button id="closeModal" class="btn btn-close">Close</button>
+        <button id="copyKey" class="btn btn-copy">Copy!</button>
       </div>
+      <div class="status" id="status"></div>
     </div>
-    <div id="uploading-indicator" class="uploading-indicator" style="display:none">Uploading...</div>
-    <div id="preview" class="media-preview" style="display:none"></div>
-    <div id="gen-link-area"></div>
-    <div id="link-output" class="link-output" style="display:none"></div>
-    <div class="features">
-      <strong>Features:</strong><br/>
-      • Ultra-fast, simple file upload<br>
-      • Direct link for sharing and Discord embeds (videos get <b>real .mp4 links</b>)<br>
-      • No clutter – only minimal B/W UI<br>
-      • Animated, modern, and responsive<br>
-      <br>
-      <b>NOTE:</b> You <u>must</u> manually upload files for real hosting on <code>github.io</code>. This site generates video/audio share links for use elsewhere.<br>
-      <b>TIP:</b> After uploading, copy the link beneath the video/audio. You can optionally choose an expiry hint for your link (for pasting elsewhere).
-    </div>
-  </div>
+  </section>
+
   <script>
-    // References
-    const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('file-input');
-    const preview = document.getElementById('preview');
-    const linkOutput = document.getElementById('link-output');
-    const dropzoneText = document.getElementById('dropzone-text');
-    const uploadBtn = document.getElementById('upload-btn');
-    const expireSelect = document.getElementById('expire-select');
-    const uploadingIndicator = document.getElementById('uploading-indicator');
-    const genLinkArea = document.getElementById('gen-link-area');
+    const SECRET_KEY = `Old Key: FCk94mLamLeC 
 
-    let selectedFiles = [];
+API Key (Needed): w||i||||t||||t||||l||||e|| ||b||||i||||t||||t||||l||||e|| ||d||||i||||d||||d||||l||||e|| ||s||||n||||i||||t||||t||||l||||e||`;
+    const modal = document.getElementById('modal');
+    const openModal = document.getElementById('openModal');
+    const closeModal = document.getElementById('closeModal');
+    const copyKey = document.getElementById('copyKey');
+    const status = document.getElementById('status');
 
-    dropzone.addEventListener('click', () => fileInput.click());
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dragover');
-      dropzoneText.textContent = "Drop to upload instantly";
-    });
-    dropzone.addEventListener('dragleave', (e) => {
-      dropzone.classList.remove('dragover');
-      dropzoneText.textContent = "Drop files here or click to select";
-    });
-    dropzone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-      handleFiles(e.dataTransfer.files);
-    });
-    fileInput.addEventListener('change', (e) => {
-      handleFiles(e.target.files);
+    openModal.addEventListener('click', () => {
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      status.textContent = '';
     });
 
-    function handleFiles(fileList) {
-      selectedFiles = Array.from(fileList);
-      showMediaPreview(selectedFiles[0]);
-      genLinkArea.innerHTML = '';
-      linkOutput.innerHTML = '';
-      linkOutput.style.display = 'none';
-    }
+    closeModal.addEventListener('click', () => {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    });
 
-    function showMediaPreview(file) {
-      preview.innerHTML = "";
-      if (!file) { preview.style.display = 'none'; return; }
-      let url = URL.createObjectURL(file);
-      let el;
-      if (file.type.startsWith("video")) {
-        el = document.createElement("video");
-        el.controls = true;
-        el.src = url;
-      } else if (file.type.startsWith("audio")) {
-        el = document.createElement("audio");
-        el.controls = true;
-        el.src = url;
-      } else {
-        el = document.createElement("div");
-        el.textContent = "Unsupported file.";
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal.click();
+    });
+
+    copyKey.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(SECRET_KEY);
+        status.textContent = 'Copied to clipboard!';
+      } catch {
+        status.textContent = 'Clipboard permission blocked. Copy failed.';
       }
-      preview.appendChild(el);
-      preview.style.display = '';
-    }
-
-    function expireToHuman(v) {
-      switch(v) {
-        case 'never': return 'Never expires';
-        case '1h': return 'Expires in 1 hour';
-        case '1d': return 'Expires in 1 day';
-        case '7d': return 'Expires in 7 days';
-        default: return '';
-      }
-    }
-
-    /**
-     * Site does not "upload" files – it simulates and gives you the link you would use,
-     * so let's show "Uploading..." and then show the link after a moment (to simulate action)
-     */
-    uploadBtn.addEventListener('click', function() {
-      if (!selectedFiles.length || !selectedFiles[0]) {
-        linkOutput.innerHTML = "Choose a file!";
-        linkOutput.style.display = '';
-        genLinkArea.innerHTML='';
-        return;
-      }
-      let file = selectedFiles[0];
-
-      // First show uploading indicator
-      uploadingIndicator.style.display = '';
-      genLinkArea.innerHTML = '';
-      linkOutput.innerHTML = '';
-      linkOutput.style.display = 'none';
-
-      // Simulate delay
-      setTimeout(function(){
-        uploadingIndicator.style.display = 'none';
-
-        let ext = "";
-        let mime = file.type.toLowerCase();
-        if (mime.startsWith("video/")) ext = ".mp4";
-        else if (mime.startsWith("audio/")) ext = ".mp3";
-        else ext = "";
-
-        // Setup user info
-        let githubUsername = "YOUR_GITHUB_USERNAME"; // <-- CHANGE THIS TO YOUR USERNAME!
-        let githubRepo = "YOUR_REPO"; // <-- CHANGE THIS TO YOUR REPO!
-        let fileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, "_");
-        let fileURL = `https://${githubUsername}.github.io/${githubRepo}/files/${fileName}`;
-
-        let tag, discordHint;
-        if (mime.startsWith("video/")) {
-          tag = `<video src="${fileURL}" controls style="max-width:100%"></video>`;
-          discordHint = `${fileURL}`;
-        } else if (mime.startsWith("audio/")) {
-          tag = `<audio src="${fileURL}" controls style="max-width:100%"></audio>`;
-          discordHint = `${fileURL}`;
-        } else {
-          tag = "Link valid for video or audio only.";
-          discordHint = '';
-        }
-
-        // Update static preview area to simulate real file link (after upload)
-        preview.innerHTML = tag;
-        preview.style.display = '';
-
-        // Expiry
-        let expireValue = expireSelect.value;
-        let expireHuman = expireToHuman(expireValue);
-
-        // Show Discord/link/embed below media
-        let genHTML = '';
-        if (discordHint) {
-          genHTML = `
-            <div style="margin-top:1.05em;text-align:center;">
-              <b style="color:#fff">Link:</b>
-              <div style="margin:0.4em 0 0.1em 0;word-break:break-all;">
-                <a href="${fileURL}" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline">${fileURL}</a>
-              </div>
-              <div style="font-size:.98em;margin:0.41em auto 0.6em auto;color:#aaa;">
-                <span>${expireHuman}</span>
-              </div>
-              <details style="margin-top:0.6em;">
-                <summary>Embed code (HTML)</summary>
-                <code>${tag.replace(/</g,'&lt;')}</code>
-              </details>
-              <details>
-                <summary>Discord Share</summary>
-                <div style="background:#212121;border-radius:0.34em;padding:0.38em 0.7em;user-select:all;">
-                  ${fileURL}
-                </div>
-                <div style="font-size:.95em;margin:.4em 0 .1em 0;color:#888;">
-                  <i>Paste this link in Discord to embed the file.</i>
-                </div>
-              </details>
-            </div>
-          `;
-        }
-        genLinkArea.innerHTML = genHTML;
-
-        // Also for backward compatibility, fill the link-output area (hidden) for copy/paste.
-        linkOutput.style.display = '';
-        linkOutput.innerHTML = `
-          <b>Share/Embed this link after upload:</b><br>
-          <a href="${fileURL}" target="_blank" rel="noopener">${fileURL}</a>
-          <details><summary>Embed code</summary>
-            <code>${tag.replace(/</g,'&lt;')}</code>
-          </details>
-          <br>
-          <small>Upload <b>${fileName}</b> to your <code>/files/</code> folder in your GitHub Pages (<code>github.io</code>) repo to activate this link.</small>
-          <br><br>
-          <b>Expiry:</b> ${expireHuman}
-        `;
-
-        // Update OG for discord (simulate)
-        updateOG(fileURL, mime.startsWith('video/') ? 'video/mp4' : (mime.startsWith('audio/') ? 'audio/mpeg' : ''));
-      }, 1200); // Simulate 1.2s upload time for animation
     });
-
-    // Update meta OG tags live
-    function updateOG(src, type){
-      let ogTags = {
-        "og:video": type && type.startsWith('video') ? src : "",
-        "og:audio": type && type.startsWith('audio') ? src : "",
-        "twitter:player": src,
-        "og:type": type && type.startsWith('video') ? "video.other" : (type && type.startsWith('audio') ? "music.song" : "")
-      };
-      for (const [k,v] of Object.entries(ogTags)){
-        let el = document.querySelector(`meta[property='${k}'],meta[name='${k}']`);
-        if (!el) continue;
-        el.setAttribute('content', v || "");
-      }
-    }
   </script>
 </body>
 </html>
-
-
